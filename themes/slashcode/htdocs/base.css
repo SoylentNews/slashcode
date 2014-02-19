@@ -115,7 +115,7 @@ span.sd-info-block, span[class^=sd-key-] {
 
 #topnav ul {
 	position: absolute;
-	right: 0;
+	left: 115px;
 	margin: 0;
 	width: 55%;
 	list-style: none;
