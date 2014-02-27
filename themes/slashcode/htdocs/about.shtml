@@ -7,7 +7,6 @@
 <!--#include virtual="/slashhead-gen-full.inc"-->
 
 <h1>About SoylentNews</h1>
-
 <p>We are building a news aggregation site that delivers what's important - better articles, less fluff, and all the functionality you expect from a good comment moderation system.</p>
 <p>This is a community driven project and can evolve based on the will of the users and volunteers. The code and database will be open-source (barring any legal issues).</p>
 <p>Now, go forth and submit stories, comment, moderate, and be free!</p>
@@ -24,7 +23,6 @@
 </p></ul>
 <p><h2>Suggested Reading</h2><ul>
 <li><a href="http://soylentnews.org/article.pl?sid=14/02/12/0715245">Welcome to SoylentNews!</a></li>
-<li><a href="http://soylentnews.org/article.pl?sid=14/02/16/1331209">Massive Site Progress - Status for 02/16</a></li>
 <li><a href="http://soylentnews.org/article.pl?sid=14/02/17/0148235">Welcome to the World of Tomorrow... Today!</a></li>
 <li><a href="http://soylentnews.org/article.pl?sid=14/02/13/0412219">Reworking Moderation Access</a></li>
 <li><a href="http://soylentnews.org/moderation.shtml">Moderation Guide</a></li>
@@ -42,6 +40,6 @@ Good open source projects, depends on the community. Thanks for your continued s
 </ul>
 <p>Slash was originally written by <strong>CmdrTaco</strong> and <a href="http://www.cowboyneal.org/" target="blank">CowboyNeal</a>.</p>
 <br />
-Note: credit to martyb (76) for some help with the links.
+(note: credit to martyb (76) for some help with the links.)
 
 <!--#include virtual="/slashfoot.inc"-->
