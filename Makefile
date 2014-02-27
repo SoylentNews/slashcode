@@ -72,7 +72,13 @@ INSTALLMAN3DIR=`$(PERL) -MConfig -e 'print "$(BUILDROOT)/$$Config{installman3dir
 slash:
 	@echo "=== INSTALLING SLASH MODULES ==="
 	@if [ ! "$(RPM)" ] ; then \
-		(cd Slash; $(PERL) Makefile.PL; $(MAKE) install UNINST=1); \
+		(cd Slash; \
+		if [ ! "$(INSTALL_BASE)" ]; then \
+			$(PERL) Makefile.PL; \
+		else \
+			$(PERL) Makefile.PL INSTALL_BASE=$(INSTALL_BASE); \
+		fi; \
+		$(MAKE) install UNINST=1); \
 	else \
 		echo " - Performing an RPM build"; \
 		(cd Slash; $(PERL) Makefile.PL INSTALLSITEARCH=$(INSTALLSITEARCH) INSTALLSITELIB=$(INSTALLSITELIB) INSTALLMAN3DIR=$(INSTALLMAN3DIR); $(MAKE) install UNINST=1); \
@@ -87,7 +93,11 @@ pluginsandtagboxes:
 		 echo == $$PWD; \
 		 if [ -f Makefile.PL ]; then \
 		 	if [ ! "$(RPM)" ] ; then \
-				$(PERL) Makefile.PL; \
+				if [ ! "$(INSTALL_BASE)" ]; then \
+					$(PERL) Makefile.PL; \
+				else \
+					$(PERL) Makefile.PL INSTALL_BASE=$(INSTALL_BASE); \
+				fi; \
 				$(MAKE) install UNINST=1;\
 				$(MAKE) realclean; \
 			else \
