@@ -1,0 +1,23 @@
+__section__
+default
+__description__
+Shows messages to user
+__title__
+
+__page__
+misc
+__lang__
+en_US
+__name__
+headMessage
+__template__
+[% subs = Slash.db.getSubmissionCount() %]
+
+[% IF subs < constants.subs_level %]
+<div id="head_message">[% constants.subs_message %]</div>
+[% END %]
+
+__seclev__
+10000
+__version__
+$Id$
