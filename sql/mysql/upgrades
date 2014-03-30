@@ -6610,4 +6610,4 @@ ALTER TABLE users_comments DROP points;
 INSERT INTO vars (name, value, description) VALUES ('subs_level','15','Level at which to not to display low submissions message, set to 0 to disable message');
 
 # New variables for use disabling moderate_or_post
-INSERT IGNORE INTO vars (name, value, description) VALUES ('moderator_or_post', '1', 'Can users moderate and post in the same discussion (1=yes, 2=no)');
+INSERT IGNORE INTO vars (name, value, description) VALUES ('moderator_or_post', '1', 'Can users moderate and post in the same discussion (1=yes, 0=no)');
