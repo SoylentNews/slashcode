@@ -62,7 +62,6 @@ __template__
 		<p>
 			<b>
 				<a href="[% gSkin.rootdir %]/search.pl?op=polls">More Polls</a><br>
-				<a href="[% gSkin.rootdir %]/submit.pl">Submit Poll</a>
 			</b>
 		</p>
 	</div>
