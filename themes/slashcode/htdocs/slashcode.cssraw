@@ -76,7 +76,7 @@ a:visited { color: #000; }
 
 /* Commnets Pages */
 
-commentTop .title h4 {     
+.commentTop .title h4 {     
     background: #339 linear-gradient(#006, #339);
     border-radius: 10px 10px 0 0;
 }
