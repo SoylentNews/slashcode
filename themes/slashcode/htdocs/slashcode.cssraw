@@ -97,7 +97,6 @@ a:visited { color: #000; }
 {
 	border: 1px solid #aaa;
 	border-top: none;
-    border-radius: 0 0 10px 10px;
 }
 
 .commentBody
