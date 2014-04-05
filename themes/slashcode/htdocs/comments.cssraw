@@ -104,7 +104,7 @@ html > body .commentwrap table {
 
 .commentTop .details a
 {
-	color: #600;
+	color: #006;
 }
 
 .commentSub
@@ -282,10 +282,10 @@ ul#commentlisting
 	font-size: 100%;
 }
 
-.comment > .oneline .commentTop .title h4 a { color: #600; }
+.comment > .oneline .commentTop .title h4 a { color: #006; }
 .comment > .oneline .commentTop {
 	background: transparent;
-	color: #600;
+	color: #006;
 }
 
 .comment > .oneline .commentBody {
