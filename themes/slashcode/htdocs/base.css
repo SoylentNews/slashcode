@@ -23,9 +23,9 @@ sup
 	border: 1px solid transparent;
 }
 
-a { color: #600; text-decoration:underline;}
+a { color: #006; text-decoration:underline;}
 a:visited { color: #000; }
-a:hover { color: #800; text-decoration: none; }
+a:hover { color: #008; text-decoration: none; }
 img { border: none; }
 
 #jump { display: none; }
@@ -153,8 +153,8 @@ span.sd-info-block, span[class^=sd-key-] {
 
 /* links */
 
-#links a, #links a:visited { color: #600; text-decoration:none;}
-#links a:hover { color: #900; text-decoration: underline; }
+#links a, #links a:visited { color: #006; text-decoration:none;}
+#links a:hover { color: #008; text-decoration: underline; }
 
 #links
 {
@@ -644,7 +644,7 @@ ul.menu li a.begin
 	padding: 0 .3em;
 }
 
-ul.menu li a:visited { color: #600; }
+ul.menu li a:visited { color: #006; }
 
 ul.menu li.selected a
 {
@@ -696,7 +696,7 @@ ul.menu li.selected a
 .error
 {
 	padding: 1em;
-	color: #600;
+	color: #006;
 	font-weight: bold;
 }
 
@@ -738,7 +738,7 @@ input.button
 .data_head
 {
 	color: #fff;
-	background: #600;
+	background: #006;
 }
 
 .data_head th { text-align: left; }
@@ -794,7 +794,7 @@ pre
 .lt_tb_col { background: #ccc; }
 .lt_text_col { color: #fff; }
 .right { text-align: right; }
-.sb_header { font-size: 1.25em; font-weight: bold; color: #600; }
+.sb_header { font-size: 1.25em; font-weight: bold; color: #006; }
 .hide { display: none }
 .buttons { text-align: right }
 
