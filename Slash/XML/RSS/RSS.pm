@@ -450,7 +450,9 @@ sub rss_story {
 	}
 
 	if ($version >= 1.0) {
-		$encoded_item->{dc}{date}    = $self->encode($self->date2iso8601($story->{'time'}))
+        $encoded_item->{dc}{date}    = $self->encode($self->date2iso8601($story->{'time'})) 
+            if $story->{'time'};
+		$encoded_item->{pubDate}    = $self->encode($self->date2iso8601($story->{'time'}))
 			if $story->{'time'};
 		$encoded_item->{dc}{subject} = $self->encode($topics->{$story->{tid}}{keyword})
 			if $story->{tid};
@@ -479,6 +481,18 @@ sub rss_story {
 				$reader->getSkin($story->{primaryskid})->{name}
 			);
 		}
+        ##########
+        # Code added Tue May 13 07:45:27 EST 2014 - TheMightyBuzzard
+        # Fix for "RSS feed doesn't include summary #38"
+        # If $story (initially passed in as $item->{story}) has intro text,
+        # encode it and add it to $encoded_item. It will eventually be
+        # put into the RSS feed after returning to Slash::XML,
+        # which is called from rss_submit.pl and run as part of slashd.
+        if($story->{introtext}) {
+            $encoded_item->{description} = $story->{introtext};
+        }
+        #
+        ##########
 	}
 
 	return $encoded_item;
