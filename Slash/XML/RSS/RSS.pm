@@ -450,7 +450,8 @@ sub rss_story {
 	}
 
 	if ($version >= 1.0) {
-        #$encoded_item->{dc}{date}    = $self->encode($self->date2iso8601($story->{'time'}))
+        $encoded_item->{dc}{date}    = $self->encode($self->date2iso8601($story->{'time'})) 
+            if $story->{'time'};
 		$encoded_item->{pubDate}    = $self->encode($self->date2iso8601($story->{'time'}))
 			if $story->{'time'};
 		$encoded_item->{dc}{subject} = $self->encode($topics->{$story->{tid}}{keyword})
