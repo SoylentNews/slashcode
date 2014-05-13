@@ -450,7 +450,8 @@ sub rss_story {
 	}
 
 	if ($version >= 1.0) {
-		$encoded_item->{dc}{date}    = $self->encode($self->date2iso8601($story->{'time'}))
+        #$encoded_item->{dc}{date}    = $self->encode($self->date2iso8601($story->{'time'}))
+		$encoded_item->{pubDate}    = $self->encode($self->date2iso8601($story->{'time'}))
 			if $story->{'time'};
 		$encoded_item->{dc}{subject} = $self->encode($topics->{$story->{tid}}{keyword})
 			if $story->{tid};
@@ -487,7 +488,7 @@ sub rss_story {
         # put into the RSS feed after returning to Slash::XML,
         # which is called from rss_submit.pl and run as part of slashd.
         if($story->{introtext}) {
-            $encoded_item->{slash}{introtext} = $self->encode($story->{introtext});
+            $encoded_item->{description} = $story->{introtext};
         }
         #
         ##########
