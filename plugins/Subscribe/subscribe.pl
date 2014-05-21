@@ -63,12 +63,6 @@ sub main {
 	$op = 'default' unless $ops->{$op};
 
 	header("subscribe") or return;
-	print createMenu('users', {
-		style =>	'tabbed',
-		justify =>	'right',
-		color =>	'colored',
-		tab_selected =>	'preferences',
-	});
 
 	my $retval = $ops->{$op}{function}->($form, $slashdb, $user, $constants);
 
@@ -79,15 +73,32 @@ sub main {
 ##################################################################
 # Edit options
 sub edit {
-	my($form, $slashdb, $user, $constants) = @_;
-	my $user_edit;
-	if ($form->{uid}
-		&& $user->{seclev} >= 100
-		&& $form->{uid} =~ /^\d+$/
-		&& !isAnon($form->{uid})) {
-		$user_edit = $slashdb->getUser($form->{uid});
+	my($form, $slashdb, $user, $constants, $note) = @_;
+	
+	
+	my $admin_flag = ($user->{is_admin}) ? 1 : 0;
+	my ($id, $user_edit, $fieldkey);
+	if ($admin_flag && $form->{userfield}) {
+		$id ||= $form->{userfield};
+		if ($form->{userfield} =~ /^\d+$/) {
+			$user_edit = $slashdb->getUser($id);
+			$fieldkey = 'uid';
+		} else {
+			$user_edit = $slashdb->getUser($slashdb->getUserUID($id));
+			$fieldkey = 'nickname';
+		}
+	} else {
+		$user_edit = $id eq '' ? $user : $slashdb->getUser($id);
+		$fieldkey = 'uid';
+		$id = $user_edit->{uid};
 	}
-	$user_edit ||= $user;
+	
+	my $admin_block = 	slashDisplay('getUserAdmin', {
+			field=> $user_edit->{uid},
+			useredit => $user_edit
+			}, { Return => 1, Page => 'users' }) if $admin_flag;
+
+	my $title ='Configuring Subscription for '.strip_literal($user_edit->{nickname}).' ('.$user_edit->{uid}.')';
 
 	my $subscribe = getObject('Slash::Subscribe');
 	my @defpages = sort keys %{$subscribe->{defpage}};
@@ -102,25 +113,31 @@ sub edit {
 		defined($user->{hits_bought_today_max})
 		? $user->{hits_bought_today_max}
 		: "";
-
-	titlebar("100%", "Configuring Subscription", {
-		template =>		'prefs_titlebar',
+	
+	my $prefs_titlebar = slashDisplay('prefs_titlebar', {
 		tab_selected =>		'subscription',
-	});
+		title  => $title
+	}, { Return => 1 });
+		
 	slashDisplay("edit", {
+		note => $note,
 		user_edit => $user_edit,
+		userfield =>$form->{userfield},
+		prefs_titlebar	=> $prefs_titlebar,
+		admin_flag => $admin_flag,
+		admin_block  => $admin_block,
 		user_newvalues => $user_newvalues,
 	});
 	1;
 }
 
 ##################################################################
-# Edit options
+# Save options
 sub save {
 	my($form, $slashdb, $user, $constants) = @_;
 	my $user_edit;
 	if ($form->{uid}
-		&& $user->{seclev} >= 100
+		&& $user->{is_admin}
 		&& $form->{uid} =~ /^\d+$/
 		&& !isAnon($form->{uid})) {
 		$user_edit = $slashdb->getUser($form->{uid});
@@ -162,21 +179,14 @@ sub save {
 	}
 	my $hbtm = $form->{hbtm};
 	$hbtm = "" if $hbtm < 0;
-	$hbtm = 65535 if $hbtm > 65535;
+	$hbtm = 	16777215 if $hbtm > 	16777215;
 	$user_newvalues->{hits_bought_today_max} =
 		$user_update->{hits_bought_today_max} =
 		$hbtm;
 	$slashdb->setUser($user_edit->{uid}, $user_update);
 
-	titlebar("100%", "Configuring Subscription", {
-		template =>		'prefs_titlebar',
-		tab_selected =>		'subscription',
-	});
-	print "<p>Subscription options saved.\n<p>";
-	slashDisplay("edit", {
-		user_edit => $user_edit,
-		user_newvalues => $user_newvalues,
-	});
+	my $note = "<p><b>Subscription options saved.</b></p>";
+	edit(@_, $note);
 	1;
 }
 
@@ -243,7 +253,7 @@ sub grant {
 	my($form, $slashdb, $user, $constants) = @_;
 	titlebar("100%", "Granting pages to user");
 	if (!$user->{is_admin}){
-		print "<p>Insufficient permission -- you aren't an admin\n";
+		print "<div class=\"generalbody\"><p>Insufficient permission -- you aren't an admin</p></div>";
 		return;
 	}
 	
