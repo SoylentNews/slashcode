@@ -387,6 +387,7 @@ sub setCurrentForm {
 		my $r = Apache->request;
 		my $cfg = Apache::ModuleConfig->get($r, 'Slash::Apache');
 		$form = $cfg->{'form'};
+        
 	} else {
 		$form = $static_form;
 	}
@@ -467,23 +468,28 @@ sub getCurrentForm {
 	if ($ENV{GATEWAY_INTERFACE} && (my $r = Apache->request)) {
 		my $cfg = Apache::ModuleConfig->get($r, 'Slash::Apache');
 		$form = $cfg->{'form'};
-
-        # Forms should always be checked for unicode and have it converted to html encoding.
-        # There are too many ways things could go wrong otherwise. So we do it here.
-        # We are only concerned with unicode though, other fixes are already working elsewhere.
-        foreach my $item (keys %$form)
+        if(!getCurrentStatic("utf8"))
         {
-            if( (ref $form->{$item} eq "SCALAR") || (ref $form->{$item} eq '') )
+            # Forms should always be checked for unicode and have it converted to html encoding.
+            # There are too many ways things could go wrong otherwise. So we do it here.
+            # We are only concerned with unicode though, other fixes are already working elsewhere.
+            # This also alleviates the need for encode_high_bits in Slash::Utility::Data, so it will
+            # be taken out of the filter chain.
+            foreach my $item (keys %$form)
             {
-                next unless $form->{$item};
-                $form->{$item} = decode_utf8($form->{$item});
-                $form->{$item} =~ s[([^\n\r\t !-~])][ "&#".ord($1).";" ]ge;
+                if( (ref $form->{$item} eq "SCALAR") || (ref $form->{$item} eq '') )
+                {
+                    next unless $form->{$item};
+                    $form->{$item} = decode_utf8($form->{$item});
+                    #print STDERR "$item: ", $form->{$item};
+                    $form->{$item} =~ s[([^\n\r\t !-~])][ "&#".ord($1).";" ]ge;
+                }
+                else{ next;}
             }
-            else{ next;}
         }
 	} else {
-		$form = $static_form;
-	}
+	    $form = $static_form;
+    }
 
 	return defined $value ? $form->{$value} : $form;
 }

@@ -1502,11 +1502,14 @@ sub createRSS {
 	my($self, $bid, $item) = @_;
 #use Data::Dumper; $Data::Dumper::Sortkeys = 1; print STDERR "createRSS $bid item: " . Dumper($item);
 	$item->{title} =~ /^(.*)$/;
+    ##########
+    #TMB These encodes are absolutely necessary. md5_hex can't handle unicode without them.
 	my $title_md5 = md5_hex(encode_utf8($1));
 	$item->{description} =~ /^(.*)$/;
 	my $description_md5 = md5_hex(encode_utf8($1));
 	$item->{'link'} =~ /^(.*)$/;
 	my $link_md5 = md5_hex(encode_utf8($1));
+    ##########
 
 	my $data_hr = {
 		link_signature		=> $link_md5,

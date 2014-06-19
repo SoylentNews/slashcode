@@ -1008,8 +1008,12 @@ sub encryptPassword {
 	my $slashdb = getCurrentDB();
 	my $vu = $slashdb->{virtual_user};
 	my $salt = Slash::Apache::User::PasswordSalt::getCurrentPwSalt($vu);
-	$passwd = Encode::encode_utf8($passwd) if getCurrentStatic('utf8');
+    ##########
+    # TMB again, encode_utf8 necessary for md5_hex. Specifying the package
+    # explicitly however is not as we brought it in with a use.
+	$passwd = encode_utf8($passwd) if getCurrentStatic('utf8');
 	return md5_hex("$salt:$uid:$passwd");
+    ##########
 }
 
 #========================================================================
@@ -1335,25 +1339,29 @@ my %ansi_to_utf = (
 sub _ansi_to_ascii { %ansi_to_ascii }
 sub _ansi_to_utf   { %ansi_to_utf }
 
+##########
+# TMB This should only be called if we're outside the ascii range
 sub _charsetConvert {
 	my($char, $constants) = @_;
 	$constants ||= getCurrentStatic();
 
 	my $str = '';
-	if ($constants->{draconian_charset_convert}) {
-		if ($constants->{draconian_charrefs}) {
-			if ($constants->{good_numeric}{$char}) {
-				$str = sprintf('&#%u;', $char);
-			} else { # see if char is in %good_entity
-				my $ent = $char2entity{chr $char};
-				if ($ent) {
-					(my $data = $ent) =~ s/^&(\w+);$/$1/;
-					$str = $ent if $constants->{good_entity}{$data};
-				}
-			}
-		}
+    ##########
+    # This is a superfluous but harmless checking of utf8 as we only call this from
+    # one place. This may not be the case in the future though, so better safe than sorry.
+	if (!$constants->{utf8}) {
+        ##########
+        # TMB all numeric entities are good unless in the blacklist.
+        # Thusly, we check vs bad_numeric only since bad_entity requires the whole entity
+        # string and we only have one character's or its numeric value here.
+        if(!$constants->{bad_numeric}{$char})
+        {
+            $str = sprintf('&#%u;', $char);
+        }
+        ##########
+        # TMB commenting this out for now as it would only be triggered if we have a bad_numeric
 		# fall back
-		$str ||= $ansi_to_ascii{$char};
+		# $str ||= $ansi_to_ascii{$char};
 	}
 
 	# fall further back
@@ -1370,21 +1378,23 @@ sub _charsetConvert {
 sub _fixupCharrefs {
 	my $constants = getCurrentStatic();
 
+    ##########
+    # TMB AKA, we've already done this, don't waste your time or a db call.
 	return if $constants->{bad_numeric};
 
-	# At the moment, unless the "draconian" rule is set, only
+	##########
+    # TMB
+    # At the moment, only
 	# entities that change the direction of text are forbidden.
+    # This may be changed by adding entities to charrefs_bad_entity
+    # and charrefs_bad_numeric in the vars table.
 	# For more information, see
 	# <http://www.w3.org/TR/html4/struct/dirlang.html#bidirection>
 	# and <http://www.htmlhelp.com/reference/html40/special/bdo.html>.
 	$constants->{bad_numeric}  = { map { $_, 1 } @{$constants->{charrefs_bad_numeric}} };
 	$constants->{bad_entity}   = { map { $_, 1 } @{$constants->{charrefs_bad_entity}} };
-
-	$constants->{good_numeric} = { map { $_, 1 } @{$constants->{charrefs_good_numeric}},
-		grep { $_ < 128 || $_ > 159 } keys %ansi_to_ascii };
-	$constants->{good_entity}  = { map { $_, 1 } @{$constants->{charrefs_good_entity}}, qw(apos quot),
-		grep { s/^&(\w+);$/$1/ } map { $char2entity{chr $_} }
-		grep { $_ < 128 || $_ > 159 } keys %ansi_to_ascii };
+    ##########
+    # TMB not using good_numeric/good_entity anymore
 }
 
 my %action_data = ( );
@@ -1469,8 +1479,11 @@ my %actions = (
 
 	encode_high_bits => sub {
 			# !! assume Latin-1 !!
+            ##########
+            # TMB ord will not work for this without decode_utf8 first.
+            # Also, using utf8 from the vars table to decide if we should now.
 			my $constants = getCurrentStatic();
-			if ($constants->{draconian_charset}) {
+			if (!$constants->{utf8}) {
 				# anything not CRLF tab space or ! to ~ in Latin-1
 				# is converted to entities, where approveCharrefs or
 				# encode_html_amp takes care of them later
@@ -1510,7 +1523,7 @@ my %mode_actions = (
 			encode_high_bits
 			remove_tags
 			remove_ltgt
-			encode_html_amp			)],
+			encode_html_amp         )],
 	PLAINTEXT, [qw(
 			newline_to_local
 			trailing_whitespace
@@ -2438,30 +2451,28 @@ sub approveCharref {
 
 		# NB: 1114111/10FFFF is highest allowed by Unicode spec,
 		# but 917631/E007F is highest with actual glyph
-		$ok = 0 if $decimal <= 0 || $decimal > 65534; # sanity check
-		if ($constants->{draconian_charrefs}) {
-			if (!$constants->{good_numeric}{$decimal}) {
-				$ok = $ansi_to_ascii{$decimal} ? 2 : 0;
-			}
-		} else {
-			$ok = 0 if $constants->{bad_numeric}{$decimal};
-		}
+        ##########
+        # TMB How about we sanity check vs these values then instead of a limited subset?
+		$ok = 0 if $decimal <= 0 || $decimal > 1114111; # sanity check
+        ##########
+        # TMB Check always because people may use them even in utf8 mode
+        # 
+        if($constants->{bad_numeric}{$decimal}){$ok = 0;}
+		else{$ok = $ansi_to_ascii{$decimal} ? 2 : 0;}
 	} elsif ($ok == 1 && $charref =~ /^([a-z0-9]+)$/i) {
 		# Character entity.
 #		my $entity = lc $1;
 		my $entity = $1;  # case matters
-		if ($constants->{draconian_charrefs}) {
-			if (!$constants->{good_entity}{$entity}) {
-				if (defined $entity2char{$entity}) {
-					$decimal = ord $entity2char{$entity};
-					$ok = $ansi_to_ascii{$decimal} ? 2 : 0;
-				} else {
-					$ok = 0;
-				}
-			}
-		} else {
-			$ok = 0 if $constants->{bad_entity}{$entity}
-				|| ($constants->{draconian_charset} && ! exists $entity2char{$entity});
+        ##########
+        # TMB check always because people may use them even in utf8 mode
+		if (!$constants->{bad_entity}{$entity}) {
+			if (defined $entity2char{$entity}) {
+				$decimal = ord $entity2char{$entity};
+				$ok = $ansi_to_ascii{$decimal} ? 2 : 0;
+			} 
+		}
+		else {
+			$ok = 0 if $constants->{bad_entity}{$entity};
 		}
 	} elsif ($ok == 1) {
 		# Unknown character reference type, assume flawed.
@@ -2756,7 +2767,7 @@ Chomped string.
 
 sub chopEntity {
 	my($text, $length, $end) = @_;
-	$text = decode_utf8($text) if (getCurrentStatic('utf8') && !is_utf8($text));
+	$text = decode_utf8($text) if ((!getCurrentStatic('utf8')) && (is_utf8($text)));
 	if ($length && $end) {
 		$text = substr($text, -$length);
 	} elsif ($length) {
@@ -2833,7 +2844,7 @@ sub html2text {
 	1 while chomp($text);
 
 	# restore UTF-8 Flag lost by HTML::TreeBuilder
-	$text = decode_utf8($text) if ($was_utf8);
+	#$text = decode_utf8($text) if ($was_utf8);
 
 	return $text, $refs->get_refs($gSkin->{absolutedir});
 }

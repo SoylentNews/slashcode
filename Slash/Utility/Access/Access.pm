@@ -616,7 +616,11 @@ sub compressOk {
 		# characters being in a comment, but no one should be using
 		# that many wide characters in the standard English
 		# alphabet.  we can adjust filters if necessary. -- pudge
-		$content_slice =~ s/(.)/ord($1) > 2**8-1 ? '_' : $1/ge;
+		##########
+        # TMB This does not belong here even if it is decided as necessary.
+        # It belongs with all the other filters.
+        $content_slice =~ s/(.)/ord($1) > 2**8-1 ? '_' : $1/ge;
+        ##########
 
 		for (sort { $a <=> $b } keys %$limits) {
 			next unless $length >= $limits->{$_}->[0]

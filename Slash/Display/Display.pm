@@ -40,6 +40,7 @@ L<Template> for more information about templates.
 =cut
 
 use strict;
+use utf8;
 use Slash::Display::Provider ();
 use Slash::Utility::Data;
 use Slash::Utility::Environment;

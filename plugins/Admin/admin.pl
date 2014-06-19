@@ -10,6 +10,7 @@ use Image::Size;
 use Time::HiRes;
 use LWP::UserAgent;
 use URI;
+use Encode 'decode_utf8';
 
 use Slash;
 use Slash::Display;
@@ -22,6 +23,22 @@ sub main {
 	my $form = getCurrentForm();
 	my $slashdb = getCurrentDB();
 	my $constants = getCurrentStatic();
+     ##########
+    # TMB Why we have to do this for admin.pl only, I have no idea.
+    # Feel free to find out why and fix it.
+    if($constants->{utf8})
+    {
+        foreach my $item (keys %$form)
+        {
+            if( (ref $form->{$item} eq "SCALAR") || (ref $form->{$item} eq '') )
+            {
+                next unless $form->{$item};
+                $form->{$item} = decode_utf8($form->{$item});
+            }
+            else{ next;}
+        }
+    }
+    ##########
 	my $gSkin = getCurrentSkin();
 	my $postflag = $user->{state}{post};
 	# lc just in case
@@ -1155,6 +1172,7 @@ sub editStory {
 			my $temp_body;
 			$form->{bodytext} = '';
 			my $fh = $upload->fh;
+            binmode $fh, ':utf8' if $constants->{utf8};
 			while (<$fh>) {
 				$form->{bodytext} .= $_;
 			}

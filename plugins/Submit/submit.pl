@@ -184,7 +184,7 @@ sub previewStory {
 			return 0;
 		}
 	}		
-
+    #print STDERR Data::Dumper->Dumper($form->{story});
 	displayForm($form->{name}, $form->{email}, $form->{skin}, getData('previewhead'), '', $error_message);
 }
 

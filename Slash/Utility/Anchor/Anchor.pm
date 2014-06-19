@@ -279,9 +279,12 @@ sub http_send {
 
 	if ($opt->{etag} || $opt->{do_etag}) {
 		if ($opt->{do_etag} && $opt->{content}) {
+            ##########
+            # TMB This bit is necessary as md5_hex, which get_etag uses, requires an encode first.
 			$opt->{etag} = get_etag(
 				getCurrentStatic('utf8') ? encode_utf8($opt->{content}) : $opt->{content}
 			);
+            ##########
 		}
 		$r->header_out('ETag', $opt->{etag});
 

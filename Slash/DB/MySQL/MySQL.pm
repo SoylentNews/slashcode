@@ -1407,12 +1407,14 @@ sub createAccessLogAdmin {
 	$op = $form->{op} if $form->{op};
 	$status ||= $r->status;
 	my $form_freeze = nfreeze($form);
-
-	my $form_insert = $form_freeze
-		? $constants->{utf8}
-			? '0x' . unpack("H*", $self->truncateStringForCharColumn($form_freeze, 'accesslog_admin', 'form'))
-			: $self->truncateStringForCharColumn($form_freeze, 'accesslog_admin', 'form')
-		: '';
+    ##########
+    #TMB: logs are in the db, db can handle unicode
+	my $form_insert = '';
+    if($form_freeze)
+    {
+        $form_insert = $self->truncateStringForCharColumn($form_freeze, 'accesslog_admin', 'form');
+    }
+    ##########
 
 	$self->sqlInsert('accesslog_admin', {
 		host_addr	=> $r->connection->remote_ip,
@@ -10678,12 +10680,15 @@ sub setUser {
 		$hashref->{newpasswd_ts} = undef,
 		$hashref->{passwd} = encryptPassword($hashref->{passwd}, $uid);
 	}
-	if ($hashref->{people}) {
-		$hashref->{people} = nfreeze($hashref->{people});
-		if ($constants->{utf8}) {
-			$hashref->{"-people"} = "0x" . unpack("H*", delete($hashref->{people}));
-		}
-	}
+    ##########
+    # TMB: I THINK this is safe to remove but I'm not entirely certain why it was necessary
+	#if ($hashref->{people}) {
+	#	$hashref->{people} = nfreeze($hashref->{people});
+	#	if ($constants->{utf8}) {
+	#		$hashref->{"-people"} = "0x" . unpack("H*", delete($hashref->{people}));
+	#	}
+	#}
+    ##########
 	if (exists $hashref->{slashboxes}) {
 		my @slashboxes = grep /^[\w-]+$/, split /,/, $hashref->{slashboxes};
 		$hashref->{slashboxes} = join ",", @slashboxes;
