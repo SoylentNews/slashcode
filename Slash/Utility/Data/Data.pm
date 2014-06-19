@@ -1511,8 +1511,8 @@ my %actions = (
 				${$_[0]} =~ s[([^\n\r\t !-~])][ _charsetConvert(ord($1), $constants)]ge;
             }            },
     approve_unicode => sub {
-            ${$_[0]} =~ s/([^\n\r\t !-~])/_approveUnicodeChar($1), $constants/ge;
-            }       },
+            my $constants = getCurrentStatic();
+            ${$_[0]} =~ s[([^\n\r\t !-~])][_approveUnicodeChar($1), $constants]ge; },
     
 );
 
