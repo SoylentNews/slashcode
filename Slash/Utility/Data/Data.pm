@@ -1340,7 +1340,24 @@ sub _ansi_to_ascii { %ansi_to_ascii }
 sub _ansi_to_utf   { %ansi_to_utf }
 
 ##########
-# TMB This should only be called if we're outside the ascii range
+# TMB Unlike _charsetConvert, this takes a character not a numeric as an argument.
+# It can do our its processing, thank you very much.
+sub _approveUnicodeChar {
+    my($char, $constants) = @_;
+    $constants ||= getCurrentStatic();
+
+    my $str = '';
+    my $decimal = ord(decode_utf8($char));
+
+    if(!$constants->{bad_numeric}{$decimal})
+    {
+        $str = $char;
+    }
+    return $str;
+}
+
+##########
+# TMB This should only be called if we're outside the good ascii range
 sub _charsetConvert {
 	my($char, $constants) = @_;
 	$constants ||= getCurrentStatic();
@@ -1357,6 +1374,7 @@ sub _charsetConvert {
         if(!$constants->{bad_numeric}{$char})
         {
             $str = sprintf('&#%u;', $char);
+
         }
         ##########
         # TMB commenting this out for now as it would only be triggered if we have a bad_numeric
@@ -1371,6 +1389,8 @@ sub _charsetConvert {
 	# to help catch it when browsers send non-Latin-1 data even though
 	# they shouldn't
 	$char = $ansi_to_utf{$char} if exists $ansi_to_utf{$char};
+    ##########
+    # TMB this would approve bad unicode entities, wouldn't it?
 	$str ||= sprintf('&#%u;', $char) if length $char;
 	return $str;
 }
@@ -1489,26 +1509,33 @@ my %actions = (
 				# encode_html_amp takes care of them later
 				_fixupCharrefs();
 				${$_[0]} =~ s[([^\n\r\t !-~])][ _charsetConvert(ord($1), $constants)]ge;
-			}						},
+            }            },
+    approve_unicode => sub {
+            ${$_[0]} =~ s/([^\n\r\t !-~])/_approveUnicodeChar($1), $constants/ge;
+            }       },
+    
 );
 
 my %mode_actions = (
 	ANCHOR, [qw(
 			newline_to_local
-			remove_newlines			)],
+			remove_newlines
+            approve_unicode         )],
 	NOTAGS, [qw(
 			newline_to_local
 			encode_high_bits
 			remove_tags
 			remove_ltgt
 			encode_html_amp_ifnotent
-			approveCharrefs			)],
+			approveCharrefs
+            approve_unicode         )],
 	ATTRIBUTE, [qw(
 			newline_to_local
 			encode_high_bits
 			encode_html_amp
 			encode_html_ltgt
-			encode_html_quote		)],
+			encode_html_quote
+            approve_unicode         )],
 	LITERAL, [qw(
 			newline_to_local
 			encode_html_amp
@@ -1516,14 +1543,16 @@ my %mode_actions = (
 			remove_trailing_lts
 			approveTags
 			space_between_tags
-			encode_html_ltgt_stray		)],
+			encode_html_ltgt_stray
+            approve_unicode         )],
 	NOHTML, [qw(
 			newline_to_local
 			trailing_whitespace
 			encode_high_bits
 			remove_tags
 			remove_ltgt
-			encode_html_amp         )],
+			encode_html_amp 
+            approve_unicode         )],
 	PLAINTEXT, [qw(
 			newline_to_local
 			trailing_whitespace
@@ -1538,7 +1567,8 @@ my %mode_actions = (
 			approveCharrefs
 			whitespace_tagify
 			newline_indent
-			paragraph_wrap			)],
+			paragraph_wrap
+            approve_unicode         )],
 	HTML, [qw(
 			newline_to_local
 			trailing_whitespace
@@ -1550,7 +1580,8 @@ my %mode_actions = (
 			space_between_tags
 			encode_html_ltgt_stray
 			encode_html_amp_ifnotent
-			approveCharrefs )],
+			approveCharrefs
+            approve_unicode         )],
 	CODE, [qw(
 			newline_to_local
 			trailing_whitespace
@@ -1558,7 +1589,8 @@ my %mode_actions = (
 			encode_html_amp
 			encode_html_ltgt
 			whitespace_tagify
-			whitespace_and_tt )],
+			whitespace_and_tt
+            approve_unicode         )],
 	EXTRANS, [qw(
 			newline_to_local
 			trailing_whitespace
@@ -1566,7 +1598,8 @@ my %mode_actions = (
 			encode_html_amp
 			encode_html_ltgt
 			whitespace_tagify
-			newline_indent			)],
+			newline_indent
+            approve_unicode         )],
 );
 
 sub stripByMode {
