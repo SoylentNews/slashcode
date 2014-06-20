@@ -282,3 +282,5 @@ ALTER TABLE users_prefs CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ALTER TABLE vars CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ALTER TABLE xsite_auth_log CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
+#Oops, I forgot this bit.
+INSERT INTO vars (name, value, description) VALUES ('utf8', '1', '1 = Use end-to-end unicode, 0 = Convert unicode to html entities');
