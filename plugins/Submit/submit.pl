@@ -72,7 +72,9 @@ sub main {
 	# so leave it here until you really know what you
 	# are doing -- pudge
 	$form->{from}   = strip_attribute($form->{from})  if $form->{from};
-	$form->{subj}   = strip_attribute($form->{subj})  if $form->{subj};
+    ##########
+    # TMB This absolutely should not be done to subj. We want to allow entities in subj.
+	#$form->{subj}   = strip_attribute($form->{subj})  if $form->{subj};
 	$form->{email}  = strip_attribute($form->{email}) if $form->{email};
 	$form->{name}   = strip_nohtml($form->{name})     if $form->{name};
 
