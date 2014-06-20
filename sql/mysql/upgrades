@@ -100,7 +100,7 @@ UPDATE message_codes SET subscribe=0 WHERE code=12;
 INSERT INTO vars (name, value, description) VALUES ('utf8','1','Turn on utf8 by default. 0 = unicode gets encoded to entities | 1 = unicode stays unicode all the way through');
 
 # Change every last table to the utf8 character set
-alter database CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+ALTER DATABASE CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ALTER TABLE abusers CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ALTER TABLE accesslog CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ALTER TABLE accesslog_admin CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;
