@@ -1512,7 +1512,8 @@ my %actions = (
             }            },
     approve_unicode => sub {
             my $constants = getCurrentStatic();
-            ${$_[0]} =~ s[([^\n\r\t !-~])][_approveUnicodeChar($1), $constants]ge; },
+            $_[0] =~ s[([^\n\r\t !-~])][_approveUnicodeChar($1), $constants]ge;
+            },
     
 );
 
@@ -4862,11 +4863,13 @@ sub fixStory {
 		$str =~ s|<p(?: /)?>|<br><br>|g;
 	}
 
-	# smart conversion of em dashes to real ones
+	##########
+    # TMB Why? We're not the punctuation police.
+    # smart conversion of em dashes to real ones
 	# leave if - has nonwhitespace on either side, otherwise, convert
-	unless (getCurrentStatic('submit_keep_dashes')) {
-		$str =~ s/(\s+-+\s+)/ &mdash; /g;
-	}
+	#unless (getCurrentStatic('submit_keep_dashes')) {
+	#	$str =~ s/(\s+-+\s+)/ &mdash; /g;
+	#}
 
 	$str = balanceTags($str, { deep_nesting => 1 });
 
