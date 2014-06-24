@@ -9,6 +9,9 @@ use utf8;
 use Slash;
 use Slash::XML;
 use Slash::Constants ':slashd';
+use Encode qw(encode_utf8 decode_utf8 is_utf8);
+use open ':utf8';
+use open ':std';
 
 use vars qw( %task $me %redirects );
 
@@ -24,6 +27,7 @@ $task{$me}{code} = sub {
 	my $max_items = $constants->{rss_max_items_outgoing} || 10;
 
 	my $stories = $reader->getBackendStories({ limit => $max_items });
+
 	if ($stories && @$stories) {
 		newxml(@_, undef, $stories);
 		newrdf(@_, undef, $stories);
