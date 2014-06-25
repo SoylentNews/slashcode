@@ -4446,6 +4446,7 @@ sub getUrlsFromText {
 	my %urls = ( );
 	for my $text (@texts) {
 		next unless $text;
+        $text = decode_utf8($text);
 		my $tokens = HTML::TokeParser->new(\$text);
 		next unless $tokens;
 		while (my $token = $tokens->get_tag('a')) {
