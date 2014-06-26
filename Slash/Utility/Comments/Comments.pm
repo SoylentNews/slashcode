@@ -2482,7 +2482,7 @@ sub validateComment {
         ##########
         # TMB Count anything but whitespace as this is NOT unicode happy.
 		#my $num_chars = $check_notags =~ tr/A-Za-z0-9?!(){}[]+='"@$-//;
-        my $num_chars = $check_notags =~ tr/\S//;
+        my $num_chars = $check_notags =~ tr/ \t\r\n\f//c;
 
 		# Note that approveTags() has already been called by this point,
 		# so all tags present are legal and uppercased.
