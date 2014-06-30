@@ -1435,7 +1435,9 @@ sub preProcessReplyForm {
 	my($form, $reply) = @_;
 	return if !$form->{pid} || !$reply->{subject} || $form->{postersubj};
 
-	$form->{postersubj} = decode_entities($reply->{subject});
+	##########
+    # TMB As a general rule, we want to leave entities alone.
+    #$form->{postersubj} = decode_entities($reply->{subject});
 	$form->{postersubj} =~ s/^Re://i;
 	$form->{postersubj} =~ s/\s\s/ /g;
 	$form->{postersubj} = "Re:$form->{postersubj}";
@@ -1454,7 +1456,10 @@ sub preProcessComment {
 		return -1;
 	}
 
-	my $tempSubject = strip_notags($comm->{postersubj});
+	##########
+    # TMB DEBUG
+    my $tempSubject = strip_notags($comm->{postersubj});
+    my $tempSubject = $comm->{postersubj};
 	my $tempComment = $comm->{postercomment};
 
 	$comm->{anon} = $user->{is_anon};
@@ -2438,16 +2443,20 @@ sub validateComment {
 	$$subj =~ s/\(Score(.*)//i;
 	$$subj =~ s/Score:(.*)//i;
 
-	$$subj =~ s/&(#?[a-zA-Z0-9]+);?/approveCharref($1)/sge;
+    ##########
+    # TMB Duplicates work done elsewhere. Goodbye to it.
+	#$$subj =~ s/&(#?[a-zA-Z0-9]+);?/approveCharref($1)/sge;
 
-	for ($$comm, $$subj) {
-		my $d = decode_entities($_);
-		$d =~ s/&#?[a-zA-Z0-9]+;//g;	# remove entities we don't know
-		if ($d !~ /\w/) {		# require SOME non-whitespace
-			$$error_message = getError('no body');
-			return;
-		}
-	}
+	##########
+    # TMB This is duplicating work done elsewhere. Goodbye to it.
+    #for ($$comm, $$subj) {
+	#	my $d = decode_entities($_);
+	#	$d =~ s/&#?[a-zA-Z0-9]+;//g;	# remove entities we don't know
+	#	if ($d !~ /\w/) {		# require SOME non-whitespace
+	#		$$error_message = getError('no body');
+	#		return;
+	#	}
+	#}
 
 	unless (defined($$comm = balanceTags($$comm, { deep_nesting => 1 }))) {
 		# only time this should return an error is if the HTML is busted

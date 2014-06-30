@@ -1527,7 +1527,6 @@ my %mode_actions = (
 			encode_high_bits
 			remove_tags
 			remove_ltgt
-			encode_html_amp_ifnotent
 			approveCharrefs
             approve_unicode         )],
 	ATTRIBUTE, [qw(
@@ -1564,11 +1563,10 @@ my %mode_actions = (
 			processCustomTagsPost
 			space_between_tags
 			encode_html_ltgt_stray
-			encode_html_amp_ifnotent
 			approveCharrefs
 			whitespace_tagify
 			newline_indent
-			paragraph_wrap
+			paragraph_wrap 
             approve_unicode         )],
 	HTML, [qw(
 			newline_to_local
@@ -1580,7 +1578,6 @@ my %mode_actions = (
 			processCustomTagsPost
 			space_between_tags
 			encode_html_ltgt_stray
-			encode_html_amp_ifnotent
 			approveCharrefs
             approve_unicode         )],
 	CODE, [qw(
@@ -2489,10 +2486,10 @@ sub approveCharref {
         # TMB How about we sanity check vs these values then instead of a limited subset?
 		$ok = 0 if $decimal <= 0 || $decimal > 1114111; # sanity check
         ##########
-        # TMB Check always because people may use them even in utf8 mode
+        # TMB Check this check weeds out bad_numeric and sets ok == 2 if it's ansi
         # 
         if($constants->{bad_numeric}{$decimal}){$ok = 0;}
-		else{$ok = $ansi_to_ascii{$decimal} ? 2 : 0;}
+		else{$ok = $ansi_to_ascii{$decimal} ? 2 : 1;}
 	} elsif ($ok == 1 && $charref =~ /^([a-z0-9]+)$/i) {
 		# Character entity.
 #		my $entity = lc $1;
@@ -2502,7 +2499,7 @@ sub approveCharref {
 		if (!$constants->{bad_entity}{$entity}) {
 			if (defined $entity2char{$entity}) {
 				$decimal = ord $entity2char{$entity};
-				$ok = $ansi_to_ascii{$decimal} ? 2 : 0;
+				$ok = $ansi_to_ascii{$decimal} ? 2 : 1;
 			} 
 		}
 		else {
