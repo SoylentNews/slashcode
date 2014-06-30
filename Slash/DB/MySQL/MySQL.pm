@@ -8572,10 +8572,11 @@ sub getMCD {
 			$server = [ $1, $2 ];
 		}
 	}
-	require Cache::Memcached;
-	$self->{_mcd} = Cache::Memcached->new({
+	require Cache::Memcached::Fast;
+	$self->{_mcd} = Cache::Memcached::Fast->new({
 		servers =>	[ @servers ],
 		debug =>	$constants->{memcached_debug} > 1 ? 1 : 0,
+        utf8 => 1,
 	});
 	if (!$self->{_mcd}) {
 		# Can't connect; not using it.
