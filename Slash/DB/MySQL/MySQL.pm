@@ -8600,7 +8600,7 @@ sub getMCDold {
 
 	# If we already created it for this object, or if we tried to
 	# create it and failed and assigned it 0, return that.
-	return $self->{_mcd} if defined($self->{_mcd});
+	return $self->{_mcdold} if defined($self->{_mcdold});
 
 	# If we aren't using memcached, return false.
 	my $constants;
@@ -8631,13 +8631,13 @@ sub getMCDold {
 		}
 	}
 	require Cache::Memcached;
-	$self->{_mcd} = Cache::Memcached->new({
+	$self->{_mcdold} = Cache::Memcached->new({
 		servers =>	[ @servers ],
 		debug =>	$constants->{memcached_debug} > 1 ? 1 : 0,
 	});
-	if (!$self->{_mcd}) {
+	if (!$self->{_mcdold}) {
 		# Can't connect; not using it.
-		return $self->{_mcd} = 0;
+		return $self->{_mcdold} = 0;
 	}
 	if ($constants->{memcached_keyprefix}) {
 		$self->{_mcd_keyprefix} = $constants->{memcached_keyprefix};
@@ -8647,7 +8647,7 @@ sub getMCDold {
 		$constants->{sitename} =~ /([A-Za-z]).*(\w)/;
 		$self->{_mcd_keyprefix} = ($2 ? lc("$1$2") : ($1 ? lc($1) : ""));
 	}
-	return $self->{_mcd};
+	return $self->{_mcdold};
 }
 
 ##################################################################
