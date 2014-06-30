@@ -8575,7 +8575,7 @@ sub getMCD {
 	require Cache::Memcached::Fast;
 	$self->{_mcd} = Cache::Memcached::Fast->new({
 		servers =>	[ @servers ],
-		debug =>	$constants->{memcached_debug} > 1 ? 1 : 0,
+		#debug =>	$constants->{memcached_debug} > 1 ? 1 : 0,
         utf8 => 1,
 	});
 	if (!$self->{_mcd}) {
