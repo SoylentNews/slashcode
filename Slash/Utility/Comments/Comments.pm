@@ -1437,7 +1437,7 @@ sub preProcessReplyForm {
 
 	##########
     # TMB As a general rule, we want to leave entities alone.
-    #$form->{postersubj} = decode_entities($reply->{subject});
+    $form->{postersubj} = decode_entities($reply->{subject});
 	$form->{postersubj} =~ s/^Re://i;
 	$form->{postersubj} =~ s/\s\s/ /g;
 	$form->{postersubj} = "Re:$form->{postersubj}";
