@@ -534,7 +534,6 @@ sub filterOk {
 sub compressOk {
 	# leave it here, it causes problems if use'd in the
 	# apache startup phase
-    return 1;
 	require Compress::Zlib;
 	my($formname, $field, $content, $wsfactor) = @_;
 	$wsfactor ||= 1;
@@ -620,7 +619,7 @@ sub compressOk {
 		##########
         # TMB This does not belong here even if it is decided as necessary.
         # It belongs with all the other filters.
-        $content_slice =~ s/(.)/ord($1) > 2**8-1 ? '_' : $1/ge;
+        $content_slice =~ s/(.)/ord($1) > 2**8-1 ? ord($1) : $1/ge;
         ##########
 
 		for (sort { $a <=> $b } keys %$limits) {
