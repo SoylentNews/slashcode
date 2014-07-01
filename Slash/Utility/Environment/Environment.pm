@@ -468,6 +468,18 @@ sub getCurrentForm {
 	if ($ENV{GATEWAY_INTERFACE} && (my $r = Apache->request)) {
 		my $cfg = Apache::ModuleConfig->get($r, 'Slash::Apache');
 		$form = $cfg->{'form'};
+        ##########
+        # TMB Why we have to do this for forms, I have no idea.
+        # Feel free to find out why and fix it.
+        foreach my $item (keys %$form)
+        {
+            if( (ref $form->{$item} eq "SCALAR") || (ref $form->{$item} eq '') )
+            {
+                next unless $form->{$item};
+                $form->{$item} = decode_utf8($form->{$item});
+            }
+            else{ next;}
+        }
         if(!getCurrentStatic("utf8"))
         {
             # Forms should always be checked for unicode and have it converted to html encoding.

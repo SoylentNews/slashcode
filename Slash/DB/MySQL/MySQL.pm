@@ -8633,7 +8633,10 @@ sub getMCDold {
 	require Cache::Memcached;
 	$self->{_mcdold} = Cache::Memcached->new({
 		servers =>	[ @servers ],
-		debug =>	$constants->{memcached_debug} > 1 ? 1 : 0,
+        ##########
+        # TMB I think we're okay just pulling stats even in a non-debug state
+		#debug =>	$constants->{memcached_debug} > 1 ? 1 : 0,
+        debug => 1,
 	});
 	if (!$self->{_mcdold}) {
 		# Can't connect; not using it.
