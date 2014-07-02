@@ -2489,7 +2489,8 @@ sub approveCharref {
         # TMB Check this check weeds out bad_numeric and sets ok == 2 if it's ansi
         # 
         if($constants->{bad_numeric}{$decimal}){$ok = 0;}
-		else{$ok = $ansi_to_ascii{$decimal} ? 2 : 1;}
+		elsif($constants->{utf8} eq 0){$ok = $ansi_to_ascii{$decimal} ? 2 : 1;}
+        else{$ok = 1;}
 	} elsif ($ok == 1 && $charref =~ /^([a-z0-9]+)$/i) {
 		# Character entity.
 #		my $entity = lc $1;
@@ -2497,10 +2498,10 @@ sub approveCharref {
         ##########
         # TMB check always because people may use them even in utf8 mode
 		if (!$constants->{bad_entity}{$entity}) {
-			if (defined $entity2char{$entity}) {
+			if (defined $entity2char{$entity} && $constants->{utf8} == 0) {
 				$decimal = ord $entity2char{$entity};
 				$ok = $ansi_to_ascii{$decimal} ? 2 : 1;
-			} 
+			}else{$ok = 1;}
 		}
 		else {
 			$ok = 0 if $constants->{bad_entity}{$entity};
