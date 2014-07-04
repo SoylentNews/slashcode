@@ -1400,7 +1400,7 @@ sub _fixupCharrefs {
 
     ##########
     # TMB AKA, we've already done this, don't waste your time or a db call.
-	return if $constants->{bad_numeric};
+	#return if $constants->{bad_numeric};
 
 	##########
     # TMB
@@ -1512,7 +1512,8 @@ my %actions = (
             }            },
     approve_unicode => sub {
             my $constants = getCurrentStatic();
-            $_[0] =~ s[([^\n\r\t !-~])][_approveUnicodeChar($1), $constants]ge;
+            _fixupCharrefs();
+            ${$_[0]} =~ s[([^\n\r\t !-~])][_approveUnicodeChar($1, $constants)]ge;
             },
     
 );

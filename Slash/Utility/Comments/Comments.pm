@@ -1458,8 +1458,6 @@ sub preProcessComment {
 		return -1;
 	}
 
-	##########
-    # TMB DEBUG
     my $tempSubject = strip_notags($comm->{postersubj});
 	my $tempComment = $comm->{postercomment};
 
