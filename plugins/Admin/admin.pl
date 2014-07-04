@@ -1098,7 +1098,7 @@ sub editStory {
 			my $temp_body;
 			$form->{bodytext} = '';
 			my $fh = $upload->fh;
-            binmode $fh, ':utf8' if $constants->{utf8};
+            binmode $fh, ':encoding(UTF-8)' if $constants->{utf8};
 			while (<$fh>) {
 				$form->{bodytext} .= $_;
 			}

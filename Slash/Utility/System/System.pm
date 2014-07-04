@@ -38,7 +38,9 @@ use Symbol 'gensym';
 use Time::HiRes ();
 use Encode qw(encode encode_utf8 is_utf8);
 
-use open ':utf8';
+##########
+# TMB Damn, this really needs to be done individually but there are so many lines of opens...
+use open ':encoding(UTF-8)';
 use open ':std';
 
 
@@ -317,7 +319,6 @@ sub doLogInit {
 	my $exit_func = $options->{exit_func};
 
 	my $dir     = getCurrentStatic('logdir');
-    my $utf8    = getCurrentStatic('utf8');
 	my $file    = catfile($dir, "$fname.log");
 
 	mkpath $dir, 0, 0775;
@@ -327,7 +328,7 @@ sub doLogInit {
 		exit_func => $exit_func
 	});
 	open(STDERR, ">> $file\0") or die "Can't append STDERR to $file: $!";
-    binmode STDERR, ':utf8' if $utf8;
+    binmode STDERR, ':encoding(UTF-8)' if getCurrentStatic('utf8');
 	doLog($fname, ["Starting $sname with pid $$"]);
 }
 
@@ -364,7 +365,7 @@ sub doLog {
 	my $log_msg = scalar(localtime) . " $sname@msg\n";
 
 	open $fh, ">> $file\0" or die "Can't append to $file: $!\nmsg: @msg\n";
-    binmode $fh, ':utf8' if $constants->{utf8};
+    binmode $fh, ':encoding(UTF-8)' if $constants->{utf8};
 	flock($fh, LOCK_EX) if $constants->{logdir_flock};
 	seek($fh, 0, SEEK_END);
 	print $fh $log_msg;
@@ -385,7 +386,7 @@ sub save2file {
     my $constants = getCurrentStatic();
 
 	if (open my $fh, '<', $file) {
-        binmode $fh, ':utf8';# if $constants->{utf8};
+        binmode $fh, ':encoding(UTF-8)' if $constants->{utf8};
 		my $current = do { local $/; <$fh> };
 		close $fh;
 		my $new = $data;
@@ -394,7 +395,7 @@ sub save2file {
 	}
 
 	if (open my $fh, '>', $file) {
-        binmode $fh, ':utf8';
+        binmode $fh, ':encoding(UTF-8)' if $constants->{utf8};
 		print $fh $data;
 		close $fh;
 		return 1;
@@ -494,7 +495,7 @@ sub prog2file {
 			if (!open $fh, "> $filename\0") {
 				$err_str .= " could not write to '$filename': '$!'";
 			} else {
-				binmode $fh, ':utf8';# if getCurrentStatic('utf8');
+				binmode $fh, ':encoding(UTF-8)' if getCurrentStatic('utf8');
 				print $fh $data;
 				close $fh;
 				$success = 1;

@@ -10,8 +10,11 @@ use Slash;
 use Slash::XML;
 use Slash::Constants ':slashd';
 use Encode qw(encode_utf8 decode_utf8 is_utf8);
-use open ':utf8';
-use open ':std';
+##########
+# TMB There's no good way to check this here, though I don't think it's necessary
+# as save2file is called from Slash::Utility::System
+#use open ':utf8';
+#use open ':std';
 
 use vars qw( %task $me %redirects );
 

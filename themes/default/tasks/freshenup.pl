@@ -12,7 +12,7 @@ use Slash::Constants ':slashd';
 
 use strict;
 use utf8;
-#use open (getCurrentStatic('utf8') ? ':utf8' : ':encoding(us-ascii)');
+use open (getCurrentStatic('utf8') ? ':encoding(UTF-8)' : ':encoding(us-ascii)');
 
 use vars qw( %task $me $task_exit_flag
 	$minutes_run
