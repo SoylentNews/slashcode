@@ -38,9 +38,7 @@ use Symbol 'gensym';
 use Time::HiRes ();
 use Encode qw(encode encode_utf8 is_utf8);
 
-##########
-# TMB Damn, this really needs to be done individually but there are so many lines of opens...
-use open ':encoding(UTF-8)';
+use open (getCurrentStatic('utf8') ? ':encoding(UTF-8)' : ':encoding(us-ascii)');
 use open ':std';
 
 
