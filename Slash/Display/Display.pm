@@ -40,6 +40,7 @@ L<Template> for more information about templates.
 =cut
 
 use strict;
+use utf8;
 use Slash::Display::Provider ();
 use Slash::Utility::Data;
 use Slash::Utility::Environment;
@@ -53,6 +54,8 @@ our $VERSION = $Slash::Constants::VERSION;
 our @EXPORT  = qw(slashDisplay slashDisplayName);
 our @EXPORT_OK = qw(get_template);
 my(%objects);
+use open ':encoding(UTF-8)';
+use open ":std";
 
 # FRY: That doesn't look like an L at all. Unless you count lowercase.
 
@@ -236,6 +239,7 @@ sub slashDisplay {
 	if ($err) {
 		errorLog("$TEMPNAME : $err");
 	} else {
+        binmode STDOUT, ':encoding(UTF-8)';
 		print $out unless $opt->{Return};
 	}
 

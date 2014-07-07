@@ -387,6 +387,7 @@ sub setCurrentForm {
 		my $r = Apache->request;
 		my $cfg = Apache::ModuleConfig->get($r, 'Slash::Apache');
 		$form = $cfg->{'form'};
+        
 	} else {
 		$form = $static_form;
 	}
@@ -467,23 +468,24 @@ sub getCurrentForm {
 	if ($ENV{GATEWAY_INTERFACE} && (my $r = Apache->request)) {
 		my $cfg = Apache::ModuleConfig->get($r, 'Slash::Apache');
 		$form = $cfg->{'form'};
-
-        # Forms should always be checked for unicode and have it converted to html encoding.
-        # There are too many ways things could go wrong otherwise. So we do it here.
-        # We are only concerned with unicode though, other fixes are already working elsewhere.
+        ##########
+        # TMB Why we have to do this for forms, I have no idea.
+        # Feel free to find out why and fix it.
         foreach my $item (keys %$form)
         {
             if( (ref $form->{$item} eq "SCALAR") || (ref $form->{$item} eq '') )
             {
                 next unless $form->{$item};
                 $form->{$item} = decode_utf8($form->{$item});
-                $form->{$item} =~ s[([^\n\r\t !-~])][ "&#".ord($1).";" ]ge;
+                ##########
+                # TMB Combined the two loops. This takes over the job of encode_high_bits.
+                $form->{$item} =~ s[([^\n\r\t !-~])][ "&#".ord($1).";" ]ge unless getCurrentStatic('utf8');
             }
             else{ next;}
         }
 	} else {
-		$form = $static_form;
-	}
+	    $form = $static_form;
+    }
 
 	return defined $value ? $form->{$value} : $form;
 }

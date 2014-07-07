@@ -36,9 +36,9 @@ use Slash::Utility::Data;
 use Slash::Utility::Environment;
 use Symbol 'gensym';
 use Time::HiRes ();
-use Encode qw(encode);
+use Encode qw(encode encode_utf8 is_utf8);
 
-use open (getCurrentStatic('utf8') ? ':utf8' : ':encoding(us-ascii)');
+use open ':encoding(UTF-8)';
 use open ':std';
 
 
@@ -326,6 +326,7 @@ sub doLogInit {
 		exit_func => $exit_func
 	});
 	open(STDERR, ">> $file\0") or die "Can't append STDERR to $file: $!";
+    binmode STDERR, ':encoding(UTF-8)';
 	doLog($fname, ["Starting $sname with pid $$"]);
 }
 
@@ -362,6 +363,7 @@ sub doLog {
 	my $log_msg = scalar(localtime) . " $sname@msg\n";
 
 	open $fh, ">> $file\0" or die "Can't append to $file: $!\nmsg: @msg\n";
+    binmode $fh, ':encoding(UTF-8)';
 	flock($fh, LOCK_EX) if $constants->{logdir_flock};
 	seek($fh, 0, SEEK_END);
 	print $fh $log_msg;
@@ -379,8 +381,10 @@ sub doLog {
 
 sub save2file {
 	my($file, $data, $fudge) = @_;
+    my $constants = getCurrentStatic();
 
 	if (open my $fh, '<', $file) {
+        binmode $fh, ':encoding(UTF-8)';
 		my $current = do { local $/; <$fh> };
 		close $fh;
 		my $new = $data;
@@ -389,6 +393,7 @@ sub save2file {
 	}
 
 	if (open my $fh, '>', $file) {
+        binmode $fh, ':encoding(UTF-8)';
 		print $fh $data;
 		close $fh;
 		return 1;
@@ -442,7 +447,10 @@ sub prog2file {
 		local $SIG{ALRM} = sub { die "timeout" };
 		alarm $timeout if $timeout;
 		if (!$handle_err) {
-			$data = `$exec`;
+            open(EXEC, "$exec |") || die "can't fork $exec\n $!\n";
+            while(<EXEC>){$data .= $_;}
+            close EXEC;
+			#$data = `$exec`;
 			alarm 0 if $timeout;
 		} else {
 			($errfh, $errfile) = tempfile();
@@ -485,7 +493,7 @@ sub prog2file {
 			if (!open $fh, "> $filename\0") {
 				$err_str .= " could not write to '$filename': '$!'";
 			} else {
-				binmode $fh, ":encoding($options->{encoding})" if (defined($options->{encoding}));
+				binmode $fh, ':encoding(UTF-8)';
 				print $fh $data;
 				close $fh;
 				$success = 1;

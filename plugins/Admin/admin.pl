@@ -10,6 +10,7 @@ use Image::Size;
 use Time::HiRes;
 use LWP::UserAgent;
 use URI;
+use Encode 'decode_utf8';
 
 use Slash;
 use Slash::Display;
@@ -1097,6 +1098,7 @@ sub editStory {
 			my $temp_body;
 			$form->{bodytext} = '';
 			my $fh = $upload->fh;
+            binmode $fh, ':encoding(UTF-8)';
 			while (<$fh>) {
 				$form->{bodytext} .= $_;
 			}
