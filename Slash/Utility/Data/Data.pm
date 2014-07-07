@@ -1011,7 +1011,7 @@ sub encryptPassword {
     ##########
     # TMB again, encode_utf8 necessary for md5_hex. Specifying the package
     # explicitly however is not as we brought it in with a use.
-	$passwd = encode_utf8($passwd) if getCurrentStatic('utf8');
+	$passwd = encode_utf8($passwd);
 	return md5_hex("$salt:$uid:$passwd");
     ##########
 }
@@ -1353,6 +1353,12 @@ sub _approveUnicodeChar {
     {
         $str = $char;
     }
+    ##########
+    # For some reason our DB hates 3-4 byte unicode
+    if($decimal > 65535)
+    {
+        $str = approveCharref(sprintf("#x%x", $decimal));
+    }
     return $str;
 }
 
@@ -1363,35 +1369,19 @@ sub _charsetConvert {
 	$constants ||= getCurrentStatic();
 
 	my $str = '';
-    ##########
-    # This is a superfluous but harmless checking of utf8 as we only call this from
-    # one place. This may not be the case in the future though, so better safe than sorry.
-	if (!$constants->{utf8}) {
-        ##########
-        # TMB all numeric entities are good unless in the blacklist.
-        # Thusly, we check vs bad_numeric only since bad_entity requires the whole entity
-        # string and we only have one character's or its numeric value here.
-        if(!$constants->{bad_numeric}{$char})
-        {
-            $str = sprintf('&#%u;', $char);
-
-        }
-        ##########
-        # TMB commenting this out for now as it would only be triggered if we have a bad_numeric
-		# fall back
-		# $str ||= $ansi_to_ascii{$char};
-	}
+    if(!$constants->{bad_numeric}{$char})
+    {
+        $str = $char;
+    }
 
 	# fall further back
 	# if the char is a special one we don't recognize in Latin-1,
 	# convert it here.  this does not prevent someone from manually
 	# entering &#147; or some such, if they feel they need to, it is
-	# to help catch it when browsers send non-Latin-1 data even though
+	# to help catch it when browsers send non-utf-8 data even though
 	# they shouldn't
-	$char = $ansi_to_utf{$char} if exists $ansi_to_utf{$char};
-    ##########
-    # TMB this would approve bad unicode entities, wouldn't it?
-	$str ||= sprintf('&#%u;', $char) if length $char;
+	$str = $ansi_to_utf{$char} if exists $ansi_to_utf{$char};
+	$str = sprintf('&#%u;', $str) if length $str;
 	return $str;
 }
 
@@ -1496,20 +1486,6 @@ my %actions = (
 			${$_[0]} =~ s/\n+//g;				},
 	debugprint => sub {
 			print STDERR "stripByMode debug ($_[1]) '${$_[0]}'\n";	},
-
-	encode_high_bits => sub {
-			# !! assume Latin-1 !!
-            ##########
-            # TMB ord will not work for this without decode_utf8 first.
-            # Also, using utf8 from the vars table to decide if we should now.
-			my $constants = getCurrentStatic();
-			if (!$constants->{utf8}) {
-				# anything not CRLF tab space or ! to ~ in Latin-1
-				# is converted to entities, where approveCharrefs or
-				# encode_html_amp takes care of them later
-				_fixupCharrefs();
-				${$_[0]} =~ s[([^\n\r\t !-~])][ _charsetConvert(ord($1), $constants)]ge;
-            }            },
     approve_unicode => sub {
             my $constants = getCurrentStatic();
             _fixupCharrefs();
@@ -1525,14 +1501,12 @@ my %mode_actions = (
             approve_unicode         )],
 	NOTAGS, [qw(
 			newline_to_local
-			encode_high_bits
 			remove_tags
 			remove_ltgt
 			approveCharrefs
             approve_unicode         )],
 	ATTRIBUTE, [qw(
 			newline_to_local
-			encode_high_bits
 			encode_html_amp
 			encode_html_ltgt
 			encode_html_quote
@@ -1549,7 +1523,6 @@ my %mode_actions = (
 	NOHTML, [qw(
 			newline_to_local
 			trailing_whitespace
-			encode_high_bits
 			remove_tags
 			remove_ltgt
 			encode_html_amp 
@@ -1557,7 +1530,6 @@ my %mode_actions = (
 	PLAINTEXT, [qw(
 			newline_to_local
 			trailing_whitespace
-			encode_high_bits
 			processCustomTagsPre
 			remove_trailing_lts
 			approveTags
@@ -1572,7 +1544,6 @@ my %mode_actions = (
 	HTML, [qw(
 			newline_to_local
 			trailing_whitespace
-			encode_high_bits
 			processCustomTagsPre
 			remove_trailing_lts
 			approveTags
@@ -1584,7 +1555,6 @@ my %mode_actions = (
 	CODE, [qw(
 			newline_to_local
 			trailing_whitespace
-			encode_high_bits
 			encode_html_amp
 			encode_html_ltgt
 			whitespace_tagify
@@ -1593,7 +1563,6 @@ my %mode_actions = (
 	EXTRANS, [qw(
 			newline_to_local
 			trailing_whitespace
-			encode_high_bits
 			encode_html_amp
 			encode_html_ltgt
 			whitespace_tagify
@@ -2481,32 +2450,25 @@ sub approveCharref {
 			$ok = 0;
 		}
 
-		# NB: 1114111/10FFFF is highest allowed by Unicode spec,
-		# but 917631/E007F is highest with actual glyph
         ##########
-        # TMB How about we sanity check vs these values then instead of a limited subset?
-		$ok = 0 if $decimal <= 0 || $decimal > 1114111; # sanity check
+        # TMB Since this is being called on entities, only disallow beyond 0x10FFFF
+		$ok = 0 if $decimal <= 0 || $decimal > 1114111;
         ##########
-        # TMB Check this check weeds out bad_numeric and sets ok == 2 if it's ansi
-        # 
+        # TMB This check weeds out bad_numeric and sets ok == 2 if it's ansi
         if($constants->{bad_numeric}{$decimal}){$ok = 0;}
-		elsif($constants->{utf8} eq 0){$ok = $ansi_to_ascii{$decimal} ? 2 : 1;}
-        else{$ok = 1;}
+		else{$ok = $ansi_to_ascii{$decimal} ? 2 : 1;}
 	} elsif ($ok == 1 && $charref =~ /^([a-z0-9]+)$/i) {
 		# Character entity.
-#		my $entity = lc $1;
 		my $entity = $1;  # case matters
         ##########
         # TMB check always because people may use them even in utf8 mode
 		if (!$constants->{bad_entity}{$entity}) {
-			if (defined $entity2char{$entity} && $constants->{utf8} == 0) {
+			if (defined $entity2char{$entity}) {
 				$decimal = ord $entity2char{$entity};
 				$ok = $ansi_to_ascii{$decimal} ? 2 : 1;
 			}else{$ok = 1;}
 		}
-		else {
-			$ok = 0 if $constants->{bad_entity}{$entity};
-		}
+		else {$ok = 0;}
 	} elsif ($ok == 1) {
 		# Unknown character reference type, assume flawed.
 		$ok = 0;
@@ -2518,7 +2480,8 @@ sub approveCharref {
 	} elsif ($ok) {
 		return "&$charref;";
 	} else {
-		return '';
+        if(getCurrentStatic('utf8')){ return "\x{fffd}"; }
+        else{return "&#xfffd";}
 	}
 }
 

@@ -477,27 +477,11 @@ sub getCurrentForm {
             {
                 next unless $form->{$item};
                 $form->{$item} = decode_utf8($form->{$item});
+                ##########
+                # TMB Combined the two loops. This takes over the job of encode_high_bits.
+                $form->{$item} =~ s[([^\n\r\t !-~])][ "&#".ord($1).";" ]ge unless getCurrentStatic('utf8');
             }
             else{ next;}
-        }
-        if(!getCurrentStatic("utf8"))
-        {
-            # Forms should always be checked for unicode and have it converted to html encoding.
-            # There are too many ways things could go wrong otherwise. So we do it here.
-            # We are only concerned with unicode though, other fixes are already working elsewhere.
-            # This also alleviates the need for encode_high_bits in Slash::Utility::Data, so it will
-            # be taken out of the filter chain.
-            foreach my $item (keys %$form)
-            {
-                if( (ref $form->{$item} eq "SCALAR") || (ref $form->{$item} eq '') )
-                {
-                    next unless $form->{$item};
-                    $form->{$item} = decode_utf8($form->{$item});
-                    #print STDERR "$item: ", $form->{$item};
-                    $form->{$item} =~ s[([^\n\r\t !-~])][ "&#".ord($1).";" ]ge;
-                }
-                else{ next;}
-            }
         }
 	} else {
 	    $form = $static_form;

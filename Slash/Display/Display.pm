@@ -54,7 +54,8 @@ our $VERSION = $Slash::Constants::VERSION;
 our @EXPORT  = qw(slashDisplay slashDisplayName);
 our @EXPORT_OK = qw(get_template);
 my(%objects);
-use open (getCurrentStatic('utf8') ? ':encoding(UTF-8)' : ':encoding(us-ascii)');
+use open ':encoding(UTF-8)';
+use open ":std";
 
 # FRY: That doesn't look like an L at all. Unless you count lowercase.
 
@@ -238,7 +239,7 @@ sub slashDisplay {
 	if ($err) {
 		errorLog("$TEMPNAME : $err");
 	} else {
-        binmode STDOUT, ':encoding(UTF-8)' if getCurrentStatic("utf8");
+        binmode STDOUT, ':encoding(UTF-8)';
 		print $out unless $opt->{Return};
 	}
 
