@@ -1539,7 +1539,6 @@ sub postProcessComment {
 	my($comm, $from_db, $discussion) = @_;
 	my $slashdb = getCurrentDB();
 
-	print "\n<p>Comments.pm:thors1: Preview:" . $comm->{comment};
 	$comm->{sig} = parseDomainTags($comm->{sig}, $comm->{fakeemail});
 	if ($comm->{sig}) {
 		$comm->{sig} =~ s/^\s*-{1,5}\s*<(?:P|BR)>//i;
@@ -1550,7 +1549,6 @@ sub postProcessComment {
 	if (!$from_db) {
 		$comm->{comment} = parseDomainTags($comm->{comment},
 			!$comm->{anon} && $comm->{fakeemail});
-		print "\n<p>thors2: Preview:" . $comm->{comment};
 
 		my $extras = [];
 		my $disc_skin = $slashdb->getSkin($discussion->{primaryskid});
@@ -1575,10 +1573,8 @@ sub postProcessComment {
 			comment			=> $comm->{comment},
 			sig			=> $comm->{sig},
 		};
-		my $i=3;
+
 		foreach my $extra (@$extras) {
-		    print "\n<p>thors" . $i . ": Preview:" . $comm->{comment};
-		    $i=$i + 1;
 			$preview->{$extra->[1]} = $comm->{$extra->[1]};
 		}
 

@@ -1799,18 +1799,19 @@ sub processCustomTagsPost {
 
 	# thors: IRONY must be in approvedtags
 	if (grep /^irony$/i, @{$constants->{approvedtags}}) {
-		#thors debug print "Preprocessed comment:" . $str;
-		my $irony_open = "<a href=\"http://en.wikipedia.org/wiki/Irony\" style=\"text-decoration: none\">";
-		my $irony_close = "</a>";
 		my $before;
 		my $middle;
 		my $after;
-		while(($before, $middle, $after) = $str =~ /(.*)<\s*irony\s*>(.*[^\s]+.*)<\s*\/?\s*irony\s*>(.*)/s) {
-			$middle =~ s/(<\s*a\s+.*<\s*\/\s*a[^>]*>)/<\/a>$1$irony_open/g;
-			$middle =~ s/[\n\r]//g;
+		my $irony_open = "<a href=\"http://en.wikipedia.org/wiki/Irony\" style=\"text-decoration:inherit; color:inherit\">";
+		my $irony_close_cap = "</A >";
+		my $irony_close = "</a >";
+
+		while(($before, $middle, $after) = $str =~ /(.*)<\s*irony\s*>(.+)<\s*\/?\s*irony\s*>(.*)/s) {
+			$middle =~ s/(<\s*a\s+)/$irony_close_cap$1/g;
+			$middle =~ s/(<\s*\/a[\s>])/$1$irony_open/g;
+			$middle =~ s/$irony_close_cap/$irony_close/g;
 			$str = $before . $irony_open . $middle . $irony_close . $after;
 		}
-		#thors debug print "Preprocessed comment after irony:" . $str;
 	}
 
 	# just fix the whitespace for blockquote to something that looks
