@@ -8412,12 +8412,12 @@ sub getSlashConf {
 		anonymous_coward_uids =>	[ $conf{anonymous_coward_uid} ],
 						# See <http://www.iana.org/assignments/uri-schemes>
 		approved_url_schemes =>		[qw( ftp http gopher mailto news nntp telnet wais https )],
-		approvedtags =>			[qw( b i p br a ol ul li dl dt dd em strong tt blockquote div ecode quote)],
+		approvedtags =>			[qw( b i p br a ol ul li dl dt dd em strong tt blockquote irony div ecode quote)],
 		approvedtags_break =>		[qw( p br ol ul li dl dt dd blockquote div img hr )],
 		# all known tags, plus table, pre, and slash; this can be overridden
 		# in vars, but since we make this all known tags by default ...
 		# easier to just keep it in here
-		approvedtags_admin =>		[qw( b i p br a ol ul li dl dt dd em strong tt blockquote div ecode
+		approvedtags_admin =>		[qw( b i p br a ol ul li dl dt dd em strong tt blockquote irony div ecode
 				img hr big small sub sup span
 				dfn code samp kbd var cite address ins del
 				h1 h2 h3 h4 h5 h6

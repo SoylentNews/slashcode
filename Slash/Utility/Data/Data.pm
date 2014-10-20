@@ -1809,6 +1809,23 @@ sub processCustomTagsPost {
 		$str =~ s/$close/<\/div><\/p>/g;
 	}
 
+	# thors: IRONY must be in approvedtags
+	if (grep /^irony$/i, @{$constants->{approvedtags}}) {
+		my $before;
+		my $middle;
+		my $after;
+		my $irony_open = "<a href=\"http://en.wikipedia.org/wiki/Irony\" style=\"text-decoration:inherit; color:inherit\">";
+		my $irony_close_cap = "</A >";
+		my $irony_close = "</a >";
+
+		while(($before, $middle, $after) = $str =~ /(.*)<\s*irony\s*>(.+)<\s*\/?\s*irony\s*>(.*)/s) {
+			$middle =~ s/(<\s*a\s+)/$irony_close_cap$1/g;
+			$middle =~ s/(<\s*\/a[\s>])/$1$irony_open/g;
+			$middle =~ s/$irony_close_cap/$irony_close/g;
+			$str = $before . $irony_open . $middle . $irony_close . $after;
+		}
+	}
+
 	# just fix the whitespace for blockquote to something that looks
 	# universally good
 	if (grep /^blockquote$/i, @{$constants->{approvedtags}}) {
