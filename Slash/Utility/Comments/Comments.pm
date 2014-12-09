@@ -932,7 +932,8 @@ sub _can_mod {
 	return 0 if
 		    $user->{is_anon}
 		|| !$constants->{m1}
-		||  $comment->{no_moderation};
+		||  $comment->{no_moderation}
+		||  _is_mod_banned($user);
 	
 	# More easy tests.  If any of these is true, the user has
 	# authorization to mod any comments, regardless of any of
@@ -1971,8 +1972,11 @@ EOT
 		return @return;
 	}
 
+	my $marked_spam = $mod_reader->getSpamCount($comment->{cid}, $reasons);
+
 	return slashDisplay('dispComment', {
 		%$comment,
+		marked_spam	=> $marked_spam,
 		comment_shrunk	=> $comment_shrunk,
 		reasons		=> $reasons,
 		can_mod		=> $can_mod,
@@ -2654,6 +2658,14 @@ sub discussion2 {
 #	return $user->{discussion2} eq 'slashdot'
 #		? $user->{discussion2} : 0;
 	return 0;
+}
+
+sub _is_mod_banned {
+	my $user = shift;
+	my $reader = getObject('Slash::DB', { db_type => 'reader' });
+
+	my $banned = $reader->sqlSelect("1", 'users_info', "uid = $user->{uid} and mod_banned > NOW()");
+	return ($banned || 0);
 }
 
 
