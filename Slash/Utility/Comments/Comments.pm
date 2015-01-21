@@ -648,7 +648,6 @@ sub constrain_score {
 
 sub getPoints {
 	my($C, $user, $min, $max, $max_uid, $reasons, $errstr) = @_;
-#use Data::Dumper; print STDERR scalar(gmtime) . " getPoints errstr='$errstr' C: " . Dumper($C) if !defined($C->{pointsorig}) || !defined($C->{tweak_orig}) || !defined($C->{points}) || !defined($C->{tweak});
 	my $hr = {
 		score_start => constrain_score($C->{pointsorig} + $C->{tweak_orig}),
 		moderations => constrain_score($C->{points} + $C->{tweak}) - constrain_score($C->{pointsorig} + $C->{tweak_orig}),
@@ -1180,7 +1179,6 @@ sub printComments {
 		$anon_dump = \&Data::JavaScript::Anon::anon_dump;
 	}
 
-#use Data::Dumper; $Data::Dumper::Sortkeys = 1; print STDERR "printCommComments, comment: " . Dumper($comment) . "comments: " . Dumper($comments->{34}) . "discussion2: " . Dumper($discussion2);
 	my $comment_html = $options->{Return} ?  $pretext : '';
 
 
@@ -1943,7 +1941,6 @@ EOT
 
 	$comment->{class} ||= 'full';
 
-#use Data::Dumper; print STDERR "dispComment hard='$constants->{comments_hardcoded}' can_mod='$can_mod' comment: " . Dumper($comment) . "reasons: " . Dumper($reasons);
 
 	my $discussion2 = discussion2($user);
 
@@ -2156,7 +2153,6 @@ EOT
 			onclick	=> ($discussion2 ? "return D2.selectParent($comment->{original_pid})" : '')
 		}, 1) . $suffix) if $comment->{original_pid};
 
-#use Data::Dumper; print STDERR "_hard_dispComment createSelect can_mod='$can_mod' disc_arch='$user->{state}{discussion_archived}' modd_arch='$constants->{comments_moddable_archived}' cid='$comment->{cid}' reasons: " . Dumper($reasons);
 
 		push @link, qq'<div id="reasondiv_$comment->{cid}" class="modsel">' .
 			createSelect("reason_$comment->{cid}", $reasons, {
