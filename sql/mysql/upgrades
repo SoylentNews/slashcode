@@ -457,3 +457,6 @@ INSERT INTO vars (name, value, description) VALUES ('m1_1st_ban_duration', '30',
 INSERT INTO vars (name, value, description) VALUES ('m1_ban_duration', '180', 'Duration of ban in days all subsequent times someone is banned from moderating');
 INSERT INTO vars (name, value, description) VALUES ('m1_pointsgrant_arbitrary', '5', 'Number of points to grant when we are arbitrarily granting mod points.');
 INSERT INTO vars (name, value, description) VALUES ('moderate_or_post', '2', '0 = or, 1 = then, 2 = and');
+
+#Fix for admin.pl inexplicably hating on the new tags
+INSERT INTO vars (name, value, description) VALUES ('approvedtags_admin', 'b|i|p|br|a|ol|ul|li|dl|dt|dd|em|strong|tt|blockquote|div|ecode|quote|sup|sub|strike|abbr|sarc|sarcasm', 'Tags admins are allowed to use');
