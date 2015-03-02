@@ -1366,17 +1366,16 @@ sub recalcCommentScore {
 	my $constants = getCurrentStatic();
 	
 	my $scores = $self->sqlSelectAll("val", "moderatorlog", "cid = $cid");
-	my $points = 0;
+	my $points = $self->sqlSelect("pointsorig", "comments", "cid = $cid") || 0;
 	if($scores) {
 		my $minScore = $constants->{comment_minscore};
 		my $maxScore = $constants->{comment_maxscore};
 		foreach my $score (@$scores) {
-			$points += $score;
+			$points += $score->[0];
 		}
 		$points = $minScore if $points < $minScore;
 		$points = $maxScore if $points > $maxScore;
 	}
-	# stopped here
 	$self->sqlUpdate("comments", { points => $points }, "cid = $cid") or return 0;
 	
 	my $newReason = $self->getCommentMostCommonReason($cid)
