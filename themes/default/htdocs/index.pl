@@ -307,7 +307,7 @@ my $start_time = Time::HiRes::time;
 		my $metamod_reader = getObject('Slash::Metamod', { db_type => 'reader' });
 		$metamod_elig = $metamod_reader->metamodEligible($user);
 	}
-	my $return_url = "//".$ENV{HTTP_HOST}.$ENV{REQUEST_URI};
+
 	
 	slashDisplay('index', {
 		metamod_elig	=> $metamod_elig,
@@ -315,7 +315,6 @@ my $start_time = Time::HiRes::time;
 		daypass_plug_text => $daypass_plug_text,
 		stories		=> $Stories,
 		boxes		=> $StandardBlocks,
-		return_url  => $return_url,
 	});
 
 	footer();

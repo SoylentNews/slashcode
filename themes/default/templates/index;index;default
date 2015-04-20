@@ -24,7 +24,7 @@ __template__
 	<div id="slashboxes">
 	[% UNLESS user.noboxes %]
 		[% UNLESS user.lowbandwidth %] 
-			[% PROCESS userboxes %]
+			[% PROCESS userboxes return_url = '//soylentnews.org' %]
 		[% END %]
 		[% IF boxes;
 			boxes %]
