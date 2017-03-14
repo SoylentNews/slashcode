@@ -445,6 +445,9 @@ INSTALLATION
                                                         installed files
                 INIT            /etc or /etc/rc.d       Location for init
                                                         scripts
+                INSTALL_BASE    (none)                  Change location
+                                                        where modules are
+                                                        installed
                 USER            nobody                  User to own files
                 GROUP           nobody                  Group to own files
                 CP              cp                      Name of or path to
